@@ -102,13 +102,16 @@
     <input disabled id="textInput">
     <button onclick="startDoc()" id="startButton">Start</button>
     </div>
+    <button onclick="copyFunc()">Copy practice words</button>
     <script src="words.js"></script>
     <script>
         const textInput = document.getElementById('textInput');
 
         let correctAnswers = 0;
         let wrongAnswers = [];
+        let hardAnswers = [];
         let currentWord;
+        let displayStatus;
         function startDoc() {
             pickEquation();
             document.getElementById('textInput').disabled = false;
@@ -118,14 +121,24 @@
         }
         function pickEquation() {
             currentWord = words.at(Math.floor(Math.random() * (words.length+2)));
-            display();
+            firstDisplay();
         }
         function speechFunc() {
             utterance = new SpeechSynthesisUtterance(currentWord);
             speechSynthesis.cancel();
             speechSynthesis.speak(utterance);
         }
-        function display() {
+        function firstDisplay() {
+            displayStatus = false;
+            document.getElementById('textInput').disabled = true;
+            document.getElementById("mathEquation").innerHTML = "";
+            speechFunc();
+            setTimeout(function(){
+                document.getElementById("mathEquation").innerHTML = "";
+                document.getElementById('textInput').disabled = false; document.getElementById("textInput").focus();}, 1000)
+        }
+        function secondDisplay() {
+            displayStatus = true;
             document.getElementById('textInput').disabled = true;
             document.getElementById("mathEquation").innerHTML = currentWord;
             speechFunc();
@@ -148,11 +161,20 @@
                     textInput.style.animation = 'none';
                     textInput.offsetWidth;
                     textInput.style.animation = 'wrongColorFade 1000ms ease-in-out';
-                    wrongAnswers.push(currentWord);
-                    display();
+                    if(displayStatus === false){
+                        wrongAnswers.push(currentWord);
+                    }else{
+                        if(displayStatus === true){
+                            hardAnswers.push(currentWord);
+                        }
+                    }
+                    secondDisplay();
                     textInput.value = '';
                 }
             }
+        }
+        function copyFunc() {
+            navigator.clipboard.writeText("Wrong answers: " +wrongAnswers+" Hard words: " + hardAnswers);
         }
     </script>
 </body>
